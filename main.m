@@ -1,281 +1,127 @@
-% main.m - Medical Dosage Calculator
-% Main console menu for selecting numerical methods tools
+% main.m - Medical Dosage Calculator (Gaussian Elimination)
+% Main console menu for selecting Matrix Solvers
+% 
+% Group Members: Chrys Sean Sevilla, Sid Andre Bordario, Cyril John Christian Calo
 %
 % This program provides tools for calculating optimal drug mixtures
-% in medical contexts such as Oncology and TPN (Total Parenteral Nutrition)
+% for Oncology (3x3), TPN (4x4), and Complex Nutrition (5x5).
 
 function main()
     clc;
-    
     while true
-        % Display main menu
-        fprintf('\n========================================\n');
-        fprintf('  MEDICAL DOSAGE CALCULATOR\n');
-        fprintf('  Numerical Methods for Biomedical Applications\n');
-        fprintf('========================================\n\n');
-        fprintf('Select a tool:\n');
-        fprintf('  1. Gaussian Elimination Solver (3x3 - Drug/Saline/Buffer)\n');
-        fprintf('  2. Gaussian Elimination Solver (4x4 - Plus Sodium)\n');
-        fprintf('  3. Gaussian Elimination Solver (5x5 - Plus Potassium)\n');
-        fprintf('  4. Custom Matrix Solver\n');
-        fprintf('  5. Help/Documentation\n');
-        fprintf('  0. Exit\n\n');
+        fprintf('\n======================================================\n');
+        fprintf('  MEDICAL DOSAGE CALCULATOR (GAUSSIAN ELIMINATION)\n');
+        fprintf('======================================================\n');
+        fprintf('  1. 3x3 ONCOLOGY MIX (Drug, Saline, Buffer)\n');
+        fprintf('  2. 4x4 TPN NUTRITION (Dextrose, Amino, Lipids, Na)\n');
+        fprintf('  3. 5x5 COMPLEX TPN (Dex, Amino, Lipids, Na, K)\n');
+        fprintf('  0. Exit\n');
+        fprintf('======================================================\n');
         
         choice = input('Enter your choice: ');
         
         switch choice
             case 1
-                solve3x3System();
+                runScenario3x3();
             case 2
-                solve4x4System();
+                runScenario4x4();
             case 3
-                solve5x5System();
-            case 4
-                solveCustomSystem();
-            case 5
-                displayHelp();
+                runScenario5x5();
             case 0
-                fprintf('\nThank you for using Medical Dosage Calculator.\n');
-                fprintf('Stay safe and accurate with your calculations!\n\n');
+                fprintf('\nExiting application.\n');
                 break;
             otherwise
                 fprintf('\nInvalid choice. Please try again.\n');
         end
         
-        if choice >= 1 && choice <= 4
-            input('\nPress Enter to continue...');
+        if choice ~= 0
+            input('\nPress Enter to return to menu...');
+            clc;
         end
     end
 end
 
-function solve3x3System()
-    % Solve 3x3 system for Drug/Saline/Buffer mixture
-    fprintf('\n--- 3x3 System: Drug/Saline/Buffer Mixture ---\n');
-    fprintf('Variables: Drug (x1), Saline (x2), Buffer (x3)\n\n');
+function runScenario3x3()
+    fprintf('\n--- SCENARIO: ONCOLOGY CHEMOTHERAPY (3 Ingredients) ---\n');
+    fprintf('Ingredients: 1.Cytotoxin  2.Saline  3.Buffer\n');
+    fprintf('Constraints: Total Volume, Total Dosage(mg), Total Stabilizer(units)\n');
     
-    fprintf('Example scenario: Oncology chemotherapy preparation\n');
-    fprintf('Enter coefficient matrix A (3x3):\n');
+    fprintf('\n[CHEAT SHEET - TYPE THESE NUMBERS FOR DEMO]\n');
+    fprintf('Matrix A Row 1 (Volume):  [1 1 1]\n');
+    fprintf('Matrix A Row 2 (Conc):    [50 0 0]\n');
+    fprintf('Matrix A Row 3 (Stab):    [0.1 0.2 2.0]\n');
+    fprintf('Target Vector b:          [100; 1000; 36]\n');
+    fprintf('-----------------------------------------------------\n');
     
-    A = zeros(3, 3);
-    for i = 1:3
-        for j = 1:3
-            prompt = sprintf('  A(%d,%d) = ', i, j);
-            A(i, j) = input(prompt);
-        end
-    end
-    
-    fprintf('\nEnter right-hand side vector b (target concentrations/volumes):\n');
-    b = zeros(3, 1);
-    for i = 1:3
-        prompt = sprintf('  b(%d) = ', i);
-        b(i) = input(prompt);
-    end
-    
-    % Solve using Gaussian Elimination
-    [solution, success] = GaussianSolver(A, b);
-    
-    if success
-        fprintf('\n--- Solution ---\n');
-        fprintf('Drug amount:   %.4f units\n', solution(1));
-        fprintf('Saline amount: %.4f units\n', solution(2));
-        fprintf('Buffer amount: %.4f units\n', solution(3));
-        
-        % Verification
-        fprintf('\n--- Verification (A*x = b) ---\n');
-        result = A * solution;
-        for i = 1:3
-            fprintf('Equation %d: %.4f (expected: %.4f)\n', i, result(i), b(i));
-        end
-    else
-        fprintf('\nFailed to solve the system. Please check your inputs.\n');
-    end
+    solveSystem(3, {'Cytotoxin', 'Saline', 'Buffer'});
 end
 
-function solve4x4System()
-    % Solve 4x4 system for Drug/Saline/Buffer/Sodium mixture
-    fprintf('\n--- 4x4 System: Drug/Saline/Buffer/Sodium Mixture ---\n');
-    fprintf('Variables: Drug (x1), Saline (x2), Buffer (x3), Sodium (x4)\n\n');
+function runScenario4x4()
+    fprintf('\n--- SCENARIO: TPN NUTRITION (4 Ingredients) ---\n');
+    fprintf('Ingredients: 1.Dextrose  2.AminoAcids  3.Lipids  4.Sodium\n');
+    fprintf('Constraints: Volume, Calories, Protein, Sodium Level\n');
     
-    fprintf('Example scenario: TPN (Total Parenteral Nutrition) formulation\n');
-    fprintf('Enter coefficient matrix A (4x4):\n');
+    fprintf('\n[CHEAT SHEET - TYPE THESE NUMBERS FOR DEMO]\n');
+    fprintf('Matrix A Row 1 (Volume):  [1 1 1 1]\n');
+    fprintf('Matrix A Row 2 (Kcal):    [3.4 4.0 9.0 0]\n');
+    fprintf('Matrix A Row 3 (Prot):    [0 0.1 0 0]\n');
+    fprintf('Matrix A Row 4 (Salt):    [0 0 0 4.0]\n');
+    fprintf('Target Vector b:          [1220; 5500; 50; 80]\n');
+    fprintf('-----------------------------------------------------\n');
     
-    A = zeros(4, 4);
-    for i = 1:4
-        for j = 1:4
-            prompt = sprintf('  A(%d,%d) = ', i, j);
-            A(i, j) = input(prompt);
-        end
-    end
-    
-    fprintf('\nEnter right-hand side vector b (target concentrations/volumes):\n');
-    b = zeros(4, 1);
-    for i = 1:4
-        prompt = sprintf('  b(%d) = ', i);
-        b(i) = input(prompt);
-    end
-    
-    % Solve using Gaussian Elimination
-    [solution, success] = GaussianSolver(A, b);
-    
-    if success
-        fprintf('\n--- Solution ---\n');
-        fprintf('Drug amount:   %.4f units\n', solution(1));
-        fprintf('Saline amount: %.4f units\n', solution(2));
-        fprintf('Buffer amount: %.4f units\n', solution(3));
-        fprintf('Sodium amount: %.4f units\n', solution(4));
-        
-        % Verification
-        fprintf('\n--- Verification (A*x = b) ---\n');
-        result = A * solution;
-        for i = 1:4
-            fprintf('Equation %d: %.4f (expected: %.4f)\n', i, result(i), b(i));
-        end
-    else
-        fprintf('\nFailed to solve the system. Please check your inputs.\n');
-    end
+    solveSystem(4, {'Dextrose', 'Amino Acids', 'Lipids', 'Sodium'});
 end
 
-function solve5x5System()
-    % Solve 5x5 system for Drug/Saline/Buffer/Sodium/Potassium mixture
-    fprintf('\n--- 5x5 System: Drug/Saline/Buffer/Sodium/Potassium Mixture ---\n');
-    fprintf('Variables: Drug (x1), Saline (x2), Buffer (x3), Sodium (x4), Potassium (x5)\n\n');
+function runScenario5x5()
+    fprintf('\n--- SCENARIO: COMPLEX TPN + ELECTROLYTES (5 Ingredients) ---\n');
+    fprintf('Ingredients: 1.Dex 2.Amino 3.Lipids 4.Sodium 5.Potassium\n');
+    fprintf('Constraints: Vol, Kcal, Prot, Na, K\n');
     
-    fprintf('Example scenario: Complex TPN with electrolyte balance\n');
-    fprintf('Enter coefficient matrix A (5x5):\n');
+    fprintf('\n[CHEAT SHEET - TYPE THESE NUMBERS FOR DEMO]\n');
+    fprintf('Matrix A Row 1 (Volume):  [1 1 1 1 1]\n');
+    fprintf('Matrix A Row 2 (Kcal):    [3.4 4.0 9.0 0 0]\n');
+    fprintf('Matrix A Row 3 (Prot):    [0 0.1 0 0 0]\n');
+    fprintf('Matrix A Row 4 (Salt):    [0 0 0 4.0 0]\n');
+    fprintf('Matrix A Row 5 (Potass):  [0 0 0 0 2.0]\n');
+    fprintf('Target Vector b:          [1230; 5500; 50; 80; 20]\n');
+    fprintf('-----------------------------------------------------\n');
     
-    A = zeros(5, 5);
-    for i = 1:5
-        for j = 1:5
-            prompt = sprintf('  A(%d,%d) = ', i, j);
-            A(i, j) = input(prompt);
-        end
-    end
-    
-    fprintf('\nEnter right-hand side vector b (target concentrations/volumes):\n');
-    b = zeros(5, 1);
-    for i = 1:5
-        prompt = sprintf('  b(%d) = ', i);
-        b(i) = input(prompt);
-    end
-    
-    % Solve using Gaussian Elimination
-    [solution, success] = GaussianSolver(A, b);
-    
-    if success
-        fprintf('\n--- Solution ---\n');
-        fprintf('Drug amount:      %.4f units\n', solution(1));
-        fprintf('Saline amount:    %.4f units\n', solution(2));
-        fprintf('Buffer amount:    %.4f units\n', solution(3));
-        fprintf('Sodium amount:    %.4f units\n', solution(4));
-        fprintf('Potassium amount: %.4f units\n', solution(5));
-        
-        % Verification
-        fprintf('\n--- Verification (A*x = b) ---\n');
-        result = A * solution;
-        for i = 1:5
-            fprintf('Equation %d: %.4f (expected: %.4f)\n', i, result(i), b(i));
-        end
-    else
-        fprintf('\nFailed to solve the system. Please check your inputs.\n');
-    end
+    solveSystem(5, {'Dextrose', 'Amino Acids', 'Lipids', 'Sodium', 'Potassium'});
 end
 
-function solveCustomSystem()
-    % Solve custom size system (3x3 to 5x5)
-    fprintf('\n--- Custom Matrix Solver ---\n');
-    
-    n = input('Enter matrix size (3, 4, or 5): ');
-    
-    if n < 3 || n > 5 || floor(n) ~= n
-        fprintf('Invalid size. Please enter 3, 4, or 5.\n');
-        return;
-    end
-    
-    fprintf('\nEnter coefficient matrix A (%dx%d):\n', n, n);
-    
+function solveSystem(n, names)
     A = zeros(n, n);
+    fprintf('\nENTER MATRIX A (Row by Row):\n');
     for i = 1:n
-        for j = 1:n
-            prompt = sprintf('  A(%d,%d) = ', i, j);
-            A(i, j) = input(prompt);
+        fprintf('Row %d: ', i);
+        row = input('');
+        if length(row) ~= n
+            error('Row length must match matrix size.');
         end
+        A(i, :) = row;
     end
     
-    fprintf('\nEnter right-hand side vector b:\n');
+    fprintf('\nENTER TARGET VECTOR b:\n');
     b = zeros(n, 1);
     for i = 1:n
-        prompt = sprintf('  b(%d) = ', i);
-        b(i) = input(prompt);
+        fprintf('Target %d: ', i);
+        b(i) = input('');
     end
     
-    % Solve using Gaussian Elimination
+    % Call the GaussianSolver function
     [solution, success] = GaussianSolver(A, b);
     
     if success
-        fprintf('\n--- Solution ---\n');
+        fprintf('\n--- RX MIXING INSTRUCTIONS ---\n');
         for i = 1:n
-            fprintf('x(%d) = %.4f\n', i, solution(i));
+            fprintf('Volume of %-12s: %8.4f mL\n', names{i}, solution(i));
         end
         
-        % Verification
-        fprintf('\n--- Verification (A*x = b) ---\n');
-        result = A * solution;
-        for i = 1:n
-            fprintf('Equation %d: %.4f (expected: %.4f)\n', i, result(i), b(i));
-        end
+        % Verification Step
+        fprintf('\n[Verification] A * x (Calculated) vs b (Target):\n');
+        calculated_b = A * solution;
+        disp(table(calculated_b, b, 'VariableNames', {'Calculated', 'Target'}));
     else
-        fprintf('\nFailed to solve the system. Please check your inputs.\n');
+        fprintf('\nCalculation Failed (Singular Matrix or Error).\n');
     end
-end
-
-function displayHelp()
-    % Display help and documentation
-    fprintf('\n========================================\n');
-    fprintf('  HELP & DOCUMENTATION\n');
-    fprintf('========================================\n\n');
-    
-    fprintf('OVERVIEW:\n');
-    fprintf('This Medical Dosage Calculator uses Gaussian Elimination to solve\n');
-    fprintf('systems of linear equations for optimal drug mixture calculations.\n\n');
-    
-    fprintf('MEDICAL CONTEXTS:\n');
-    fprintf('1. ONCOLOGY (3x3 System):\n');
-    fprintf('   - Chemotherapy drug preparation\n');
-    fprintf('   - Balancing drug concentration, saline, and buffer solution\n');
-    fprintf('   - Ensures proper pH and osmolarity for patient safety\n\n');
-    
-    fprintf('2. TPN - Total Parenteral Nutrition (4x4 System):\n');
-    fprintf('   - IV nutrition for patients who cannot eat normally\n');
-    fprintf('   - Includes base nutrients plus sodium for electrolyte balance\n');
-    fprintf('   - Critical for maintaining proper body chemistry\n\n');
-    
-    fprintf('3. COMPLEX TPN (5x5 System):\n');
-    fprintf('   - Advanced nutritional support with complete electrolyte management\n');
-    fprintf('   - Includes potassium in addition to other components\n');
-    fprintf('   - Used for patients with specific metabolic requirements\n\n');
-    
-    fprintf('HOW TO USE:\n');
-    fprintf('1. Select the appropriate system size from the main menu\n');
-    fprintf('2. Enter the coefficient matrix A representing the relationships\n');
-    fprintf('   between components (how each component contributes to targets)\n');
-    fprintf('3. Enter the target vector b (desired concentrations or volumes)\n');
-    fprintf('4. The solver will calculate optimal amounts for each component\n\n');
-    
-    fprintf('EXAMPLE (3x3 Oncology):\n');
-    fprintf('If you need:\n');
-    fprintf('  - 100 mg total active ingredient from drug and buffer\n');
-    fprintf('  - 150 mL total volume from all components\n');
-    fprintf('  - 80 mEq total osmolarity contribution\n');
-    fprintf('The solver determines exact amounts of drug, saline, and buffer needed.\n\n');
-    
-    fprintf('IMPORTANT NOTES:\n');
-    fprintf('- Always verify calculated dosages with medical protocols\n');
-    fprintf('- Negative solutions indicate infeasible constraints\n');
-    fprintf('- This tool is for educational and planning purposes\n');
-    fprintf('- Consult with qualified medical professionals before administration\n\n');
-    
-    fprintf('GAUSSIAN ELIMINATION METHOD:\n');
-    fprintf('- Uses partial pivoting for numerical stability\n');
-    fprintf('- Handles 3x3, 4x4, and 5x5 systems efficiently\n');
-    fprintf('- Provides verification of results\n\n');
 end
