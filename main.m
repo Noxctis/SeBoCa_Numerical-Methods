@@ -47,21 +47,26 @@ function main()
 end
 
 function solve3x3System()
-    % Solve 3x3 system for Drug/Saline/Buffer mixture
-    fprintf('\n--- SCENARIO 1: ONCOLOGY CHEMOTHERAPY (3 Variables) ---\n');
-    fprintf('You are mixing a Toxic Drug, Saline, and a pH Buffer.\n');
-    fprintf('You must solve for the exact Volume (mL) of each.\n\n');
+    % Solve 3x3 system for Oncology (Corrected for Medical Realism)
+    fprintf('\n--- SCENARIO 1: ONCOLOGY MIX (Volume, Dose, & Osmolarity) ---\n');
+    fprintf('You are mixing a Toxic Drug, Normal Saline, and Sterile Water.\n');
+    fprintf('Goal: Reach target Dose and Volume, but ensure the mix is safe for veins (Isotonic).\n\n');
     
-    fprintf('--- EXPLANATION OF THE MATH (THE MATRIX) ---\n');
-    fprintf('Row 1 (Volume): [1 1 1]   -> 1mL of Drug + 1mL of Saline + 1mL of Buffer sums to Total Volume.\n');
-    fprintf('Row 2 (Dosage): [50 0 0]  -> Only the Drug Vial contains medicine (50mg/mL).\n');
-    fprintf('Row 3 (Stabil): [0.1 0.2 2] -> All three vials contribute different chemicals to pH stability.\n');
+    fprintf('--- EXPLANATION OF THE MATH ---\n');
+    fprintf('Row 1 (Volume): [1 1 1]       -> x + y + z = Total Volume (mL)\n');
+    fprintf('Row 2 (Dose):   [50 0 0]      -> Drug has 50mg/mL. Saline/Water have 0.\n');
+    fprintf('Row 3 (Osmol):  [1000 308 0]  -> Vein Safety Calculation (Linear):\n');
+    fprintf('                                 - Drug is Hypertonic (1000 mOsm/L)\n');
+    fprintf('                                 - Saline is Isotonic (308 mOsm/L)\n');
+    fprintf('                                 - Water is Hypotonic (0 mOsm/L)\n');
 
     fprintf('\n[DEMO CHEAT SHEET - TYPE THESE EXACT NUMBERS]\n');
+    fprintf('Scenario: We need 100mL total, 500mg drug, at roughly 300 mOsm/L (Isotonic).\n');
     fprintf('Matrix A Row 1:  [1 1 1]\n');
     fprintf('Matrix A Row 2:  [50 0 0]\n');
-    fprintf('Matrix A Row 3:  [0.1 0.2 2.0]\n');
-    fprintf('Target Vector b: [100; 1000; 36]\n');
+    fprintf('Matrix A Row 3:  [1000 308 0]\n');
+    fprintf('Target Vector b: [100; 500; 30000]\n'); 
+    fprintf('    *(Note: b(3) is Total Osmoles = 300 mOsm/L * 100 mL = 30000)*\n');
     fprintf('-----------------------------------------------------\n');
     
     % Input Matrix A
@@ -74,7 +79,7 @@ function solve3x3System()
     
     % Input Vector b
     fprintf('\nEnter right-hand side vector b (Targets):\n');
-    fprintf('Enter as column vector (e.g., [100; 1000; 36]): ');
+    fprintf('Enter as column vector (e.g., [100; 500; 30000]): ');
     b = input('');
     
     % Solve
@@ -82,9 +87,24 @@ function solve3x3System()
     
     if success
         fprintf('\n--- MIXING INSTRUCTIONS ---\n');
-        fprintf('Cytotoxic Drug: %.4f mL\n', solution(1));
-        fprintf('Saline Diluent: %.4f mL\n', solution(2));
-        fprintf('pH Buffer:      %.4f mL\n', solution(3));
+        fprintf('Cytotoxic Drug:  %.4f mL\n', solution(1));
+        fprintf('Normal Saline:   %.4f mL\n', solution(2));
+        fprintf('Sterile Water:   %.4f mL\n', solution(3));
+        
+        % Medical Safety Check
+        totalOsmoles = (solution(1)*1000) + (solution(2)*308) + (solution(3)*0);
+        totalVol = sum(solution);
+        finalOsmolarity = totalOsmoles / totalVol;
+        
+        fprintf('\n[Safety Check]\n');
+        fprintf('Final Osmolarity: %.2f mOsm/L\n', finalOsmolarity);
+        if finalOsmolarity > 600
+            fprintf('WARNING: Solution is Hypertonic! Central Line Required.\n');
+        elseif finalOsmolarity < 150
+            fprintf('WARNING: Solution is Hypotonic! Do not infuse.\n');
+        else
+            fprintf('STATUS: Safe for Peripheral IV.\n');
+        end
         
         verifySolution(A, solution, b);
     else
