@@ -1,5 +1,5 @@
 # SeBoCa_Numerical-Methods
-A MATLAB-based biomedical tool for optimizing IV drug mixtures (3x3 to 5x5 matrices) and tracking patient vitals using Numerical Methods (Gaussian Elimination, Interpolation, Integration).
+A MATLAB-based biomedical tool for optimizing IV drug mixtures (3x3 to 5x5 matrices) and tracking patient vitals using Numerical Methods (Gaussian Elimination).
 
 ## Overview
 This project provides numerical methods tools specifically designed for medical dosage calculations. The primary focus is on solving systems of linear equations to determine optimal drug mixture compositions for various medical contexts, including Oncology and Total Parenteral Nutrition (TPN).
@@ -61,9 +61,9 @@ This is used for patients with specific metabolic conditions requiring careful e
 1. Open MATLAB
 2. Navigate to the project directory
 3. Run the main program:
-   ```matlab
+```matlab
    main
-   ```
+```
 
 ### Example: 3x3 Oncology Drug Mixture
 ```matlab
